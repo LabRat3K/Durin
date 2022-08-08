@@ -1,0 +1,8 @@
+data/www
+html/doit.sh
+node_modules
+.build
+*.gz
+package-lock.json
+package.json
+*.ino.generic.bin
