@@ -1,0 +1,33 @@
+{
+  "name": "Durin",
+  "version": "1.0.0",
+  "description": "Gulp based build system for Durin web files",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/labrat_3k/Durin.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/labrat_3k/Durin/issues"
+  },
+  "homepage": "https://github.com/labrat_3k/Durin#readme",
+  "devDependencies": {
+    "del": "^3.0.0",
+    "gulp": "^4.0.0",
+    "gulp-clean-css": "^4.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-gzip": "^1.4.2",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-inline-source": "^4.0.0",
+    "gulp-markdown-github-style": "^1.1.1",
+    "gulp-plumber": "^1.2.1",
+    "gulp-rename": "^1.4.0",
+    "gulp-terser": "^1.4.1",
+    "gulp-uglify": "^3.0.1"
+  }
+}

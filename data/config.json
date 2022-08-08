@@ -1,0 +1,53 @@
+{
+  "device": { 
+    "dname": "Star Gate",
+    "id": "null",
+    "vled": 2,
+    "lampid": 0,
+    "password": "KnockKnock"
+  },
+  "network": {
+    "ssid": "",
+    "passphrase": "",
+    "hostname": "StarGate",
+    "ip": [
+      192,
+      168,
+      1,
+      10
+    ],
+    "netmask": [
+      255,
+      255,
+      255,
+      0
+    ],
+    "gateway": [
+      192,
+      168,
+      1,
+      1
+    ],
+    "dhcp": true,
+    "ap_fallback": true
+  },
+  "slack": {
+    "txt": {
+      "enabled":false,
+      "webhook":""
+     },
+    "lamp": {
+      "enabled":false,
+      "webhook":""
+    },
+    "fingerprint":""
+  },
+  "udp": {
+    "enabled":false,
+    "port":"4200"
+  },
+  "device": {
+    "id": "DURIN",
+    "vled":"3"
+  }
+}
