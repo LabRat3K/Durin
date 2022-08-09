@@ -1,7 +1,7 @@
 /*
 * ESPDEV.h
 *
-* Project: ESPDEV - An ESP8266 development platform 
+* Project: ESPDEV - An ESP8266 development platform
 * Based on...
 * Project: ESPixelStick - An ESP8266 and E1.31 based pixel driver
 * Copyright (c) 2016 Shelby Merrick
@@ -22,7 +22,7 @@
 #ifndef ESPDEV_H_
 #define ESPDEV_H_
 
-const char VERSION[] = "0.2";
+const char VERSION[] = "0.3";
 const char BUILD_DATE[] = __DATE__;
 
 #include <ESP8266WiFi.h>
@@ -67,13 +67,14 @@ typedef struct {
 
     /* Door Server */
     bool    sltxt; // Slack Text Enable/Disable
-    String  slwht; // Slack WebHook TEXT 
+    String  slwht; // Slack WebHook TEXT
     bool    slapi; // Slack Lamp Enable/Disable
     String  slwha; // Slack WebHook API
     String  slfp;  // Slack FingerPrint
 
     bool     udp;  // UDP Enable
     uint16_t port; // UDP Port
+    uint8_t  uip[4];// IP Address to send to
 } config_t;
 
 // Forward Declarations

@@ -1,32 +1,25 @@
 {
     "modes": [
         {
-            "name": "Pixel (WS2811 / GECE)",
-            "description": "Pixel Mode",
-            "version": "3.2 (20201103)",
-            "file": "pixel-3.2-1m_128k.bin"
-        },
-        {
-            "name": "Serial (DMX / Renard)",
-            "description": "Serial Mode",
-            "version": "3.2 (20201103)",
-            "file": "serial-3.2-1m_128k.bin"
+            "name": "Durin build",
+            "description": "Durin Portal Server v0.3",
+            "version": "0.3 (20220809)",
+            "file": "Durin.ino.bin"
         }
     ],
-
     "devices": [
         {
-            "name": "ESPixelStick V1 / V2 / V3",
+            "name": "Durin",
             "espplatformname": "esp8266",
             "esptool": {
                 "reset": "nodemcu",
                 "baudrate": "115200",
-                "spiffsloc": "0xDB000",
+                "spiffsloc": "0x200000",
                 "binloc": "0x0"
             },
             "mkspiffs": {
                 "page": "256",
-                "block": "4096",
+                "block": "8192",
                 "size": "131072"
             }
         }

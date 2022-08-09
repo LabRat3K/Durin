@@ -126,8 +126,11 @@ $(function() {
         configValidation();
     });
 
-
     $('#uport').keyup(function() {
+        configValidation();
+    });
+
+    $('#uip').keyup(function () {
         configValidation();
     });
 
@@ -138,7 +141,26 @@ $(function() {
 });
 
 function configValidation() {
-    $('#btn_config').prop('disabled', false);
+   var iptest = new RegExp(''
+      + /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\./.source
+      + /(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\./.source
+      + /(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\./.source
+      + /(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.source
+      );
+
+  if($('#udp').prop('checked')) {
+   if (iptest.test($('#uip').val())) {
+      $('#uip').removeClass('has-error');
+      $('#uip').addClass('has-success');
+      $('#btn_config').prop('disabled', false);
+   } else {
+      $('#uip').removeClass('has-success');
+      $('#uip').addClass('has-error');
+      $('#btn_config').prop('disabled', true);
+   }
+ } else {
+   $('#btn_config').prop('disabled',false);
+ }
 }
 
 function wifiValidation() {
@@ -364,7 +386,7 @@ function getElements(data) {
         for (var j in elements[i]) {
             var opt = document.createElement('option');
             opt.text = j;
-            opt.value = elements[i][j]; 
+            opt.value = elements[i][j];
             document.getElementById(i).add(opt);
         }
     }
@@ -372,7 +394,6 @@ function getElements(data) {
 
 function getConfig(data) {
     var config = JSON.parse(data);
-    console.log(config);
     // Device and Network config
     $('#title').text('DURIN - ' + config.network.hostname);
     $('#name').text(config.device.dname);
@@ -410,20 +431,25 @@ function getConfig(data) {
             config.network.gateway[3]);
 
 
-    $('#sltxt').prop('checked', config.slack.txt.enabled);
+    $('#sltxt').prop('checked', config.slack.txt.enable);
     $('#slwht').val(config.slack.txt.webhook);
 
-    $('#slapi').prop('checked', config.slack.lamp.enabled);
+    $('#slapi').prop('checked', config.slack.lamp.enable);
     $('#slwha').val(config.slack.lamp.webhook);
 
     $('#slfp').val(config.slack.fingerprint);
 
-    $('#udp').prop('checked', config.udp.enabled);
-    if (config.udp.enabled) {
-        $('.udp').addClass('hidden');
+    $('#udp').prop('checked', config.udp.enable);
+    if (config.udp.enable) {
+        $('.uedit').removeClass('hidden');
     } else {
-        $('.udp').removeClass('hidden');
+        $('.uedit').addClass('hidden');
     }
+    $('#uip').val(config.udp.uip[0] + '.' +
+            config.udp.uip[1] + '.' +
+            config.udp.uip[2] + '.' +
+            config.udp.uip[3]);
+
     $('#uport').val(config.udp.port);
 
     // Output Config
@@ -524,29 +550,30 @@ function door_toggle() {
 }
 
 function submitConfig() {
+    var udpip = $('#uip').val().split('.');
     var json = {
     	'device': {
-             'id':   $('#devid').val(), 
+             'id':   $('#devid').val(),
              'vled': $('#vled').val(),
              'dname': $('#dname').val()
         },
         'slack': {
             'txt': {
-               'enabled': $('#sltxt').prop('checked'),
+               'enable': $('#sltxt').prop('checked'),
                'webhook'  : $('#slwht').val()
             },
             'lamp': {
-               'enabled': $('#slapi').prop('checked'),
+               'enable': $('#slapi').prop('checked'),
                'webhook'  : $('#slwha').val()
             },
             'fingerprint':  $('#slfp').val(),
         },
         'udp': {
-             'enabled': $('#udp').prop('udp'), 
-             'port':    $('#uport').val()
+             'enable': $('#udp').prop('checked'),
+             'port':   $('#uport').val(),
+             'uip': [parseInt(udpip[0]), parseInt(udpip[1]), parseInt(udpip[2]), parseInt(udpip[3])]
         }
      };
- 
     wsEnqueue('S2' + JSON.stringify(json));
 }
 

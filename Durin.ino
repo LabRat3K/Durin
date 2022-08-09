@@ -413,7 +413,6 @@ void initWeb() {
 
   // Raw config file Handler - but only on station
   //web.serveStatic("/config.json", SPIFFS, "/config.json").setFilter(ON_STA_FILTER).setAuthentication(http_username, http_password);
-  web.serveStatic("/config.json", SPIFFS, "/config.json").setAuthentication(http_username, http_password);
 
   web.onNotFound([](AsyncWebServerRequest * request) {
 
@@ -511,9 +510,9 @@ void dsDeviceConfig(const JsonObject &json) {
     }
 
     if (json.containsKey("slack")) {
-        config.sltxt = json["slack"]["txt"]["enabled"];
+        config.sltxt = json["slack"]["txt"]["enable"];
         config.slwht = json["slack"]["txt"]["webhook"].as<String>();
-        config.slapi = json["slack"]["lamp"]["enabled"];
+        config.slapi = json["slack"]["lamp"]["enable"];
         config.slwha = json["slack"]["lamp"]["webhook"].as<String>();
         config.slfp =  json["slack"]["fingerprint"].as<String>();
     } else {
@@ -521,8 +520,11 @@ void dsDeviceConfig(const JsonObject &json) {
     }
 
     if (json.containsKey("udp")) {
-        config.udp = json["udp"]["enabled"];
+        config.udp = json["udp"]["enable"];
         config.port = json["udp"]["port"];
+        for (int i = 0; i < 4; i++) {
+            config.uip[i] = json["udp"]["uip"][i];
+        }
     } else {
         LOG_PORT.println("No UDP settings found.");
     }
@@ -540,7 +542,7 @@ void loadConfig() {
         config.ssid = ssid;
         config.passphrase = passphrase;
         config.password   = http_password;
-        config.hostname = "esps-" + String(ESP.getChipId(), HEX);
+        config.hostname = "Durin-" + String(ESP.getChipId(), HEX);
         config.ap_fallback = true;
        /* If not found .. LAMP ID = 0, vLED=3 */
         config.id = "No Config Found";
@@ -561,7 +563,7 @@ void loadConfig() {
         std::unique_ptr<char[]> buf(new char[size]);
         file.readBytes(buf.get(), size);
 
-        DynamicJsonDocument json(1024);
+        DynamicJsonDocument json(2048);
         DeserializationError error = deserializeJson(json, buf.get());
         if (error) {
             LOG_PORT.println(F("*** Configuration File Format Error ***"));
@@ -581,7 +583,7 @@ void loadConfig() {
 // Serialize the current config into a JSON string
 void serializeConfig(String &jsonString, bool pretty, bool creds) {
     // Create buffer and root object
-    DynamicJsonDocument json(1024);
+    DynamicJsonDocument json(2048);
 
     // Device
     JsonObject device = json.createNestedObject("device");
@@ -593,13 +595,13 @@ void serializeConfig(String &jsonString, bool pretty, bool creds) {
     JsonObject slack = json.createNestedObject("slack");
     
     JsonObject whtxt = slack.createNestedObject("txt");
-       whtxt["enabled"] = config.sltxt;
+       whtxt["enable"] = config.sltxt;
        if (creds) {
           whtxt["webhook"] = config.slwht;
        }
 
     JsonObject whapi = slack.createNestedObject("lamp");
-       whapi["enabled"] = config.slapi;
+       whapi["enable"] = config.slapi;
        if (creds) {
           whapi["webhook"] = config.slwha;
        }
@@ -607,8 +609,12 @@ void serializeConfig(String &jsonString, bool pretty, bool creds) {
        slack["fingerprint"] = config.slfp;
 
     JsonObject udp = json.createNestedObject("udp");
-       udp["enabled"] = config.udp;
+       udp["enable"] = config.udp;
        udp["port"]    = config.port;
+       JsonArray uip = udp.createNestedArray("uip");
+       for (int i = 0; i < 4; i++) {
+           uip.add(config.uip[i]);
+       }
 
     // Network
     JsonObject network = json.createNestedObject("network");
@@ -685,8 +691,8 @@ void blink_led() {
 /**
   Establishes a webhook connection to Slack:
 */
-
-void slackNotify(uint8_t lamp_state) {
+AsyncUDP udp;
+void clientNotify(uint8_t lamp_state) {
 
    // Send Human Readable SLACK notification
    if (config.sltxt) {
@@ -705,6 +711,16 @@ void slackNotify(uint8_t lamp_state) {
         httpsClient.addHeader("Content-Type", "application/json");
         httpsClient.POST(data);
         httpsClient.end();
+   }
+
+   if (config.udp) {
+      char data[20];
+      sprintf( data,"*0,%d,%d,%d",config.lampid, config.vled, lamp_state);
+      if (udp.connect(IPAddress(config.uip[0],config.uip[1],config.uip[2],config.uip[3]),config.port)) {
+         udp.write((uint8_t*)data,strlen(data));
+      } else{
+         Serial.println("Error on TX of UDP payload\n");
+      }
    }
 
    #ifdef DEBUG_SERIAL_PRINT
@@ -740,7 +756,7 @@ void loop() {
     // Trigger Command detected - toggle relay for 1 second
     if (trigger_relay) {
         digitalWrite(gpio_relay, HIGH);
-        slackNotify(door_state);
+        clientNotify(door_state);
         delay(1000);
         digitalWrite(gpio_relay, LOW);
         timeout = millis();
@@ -789,7 +805,7 @@ void loop() {
         serializeJson(json, response);
         ws.textAll("G3"+response);
        }
-       slackNotify(door_state); // Send Status, Lamp Update, and/or Serial Debug
+       clientNotify(door_state); // Send Status, Lamp Update, and/or Serial Debug
      }
 
     // workaround crash - consume incoming bytes on serial port

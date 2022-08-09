@@ -162,7 +162,7 @@ void procG(uint8_t *data, AsyncWebSocketClient *client) {
 
 void procS(uint8_t *data, AsyncWebSocketClient *client) {
 
-    DynamicJsonDocument json(1024);
+    DynamicJsonDocument json(2048);
     DeserializationError error = deserializeJson(json, reinterpret_cast<char*>(data + 2));
 
     if (error) {
