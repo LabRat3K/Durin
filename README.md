@@ -18,6 +18,7 @@ The Durin firmware reports the door status in several ways:
 Original project used an ESP-01 relay module, but then ported to an ESP-12 based solution that includes input pin for monitoring the door status, as well as relay control to trigger the door opening. See the WIKI for details on the hardware used for this project.
 
 <img src="https://github.com/LabRat3k/Durin/blob/master/pics/IMG_4681.JPG?raw=true" width=250 style="transform:rotate(90deg);">
+
 ## Requirements
 
 Along with the Arduino IDE, you'll need the following software to build this project:
